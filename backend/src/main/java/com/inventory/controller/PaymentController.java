@@ -4,6 +4,7 @@ import com.inventory.dto.PaymentDtos;
 import com.inventory.payment.MpesaPaymentService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 // This class is a Spring REST controller that handles HTTP requests related to payments, specifically for Mpesa payment processing.
@@ -18,11 +19,13 @@ public class PaymentController {
 	}
 
 	@PostMapping("/mpesa/request")
+	@PreAuthorize("hasAnyRole('ADMIN','MANAGER','ACCOUNTANT','CASHIER','CUSTOMER')")
 	public ResponseEntity<PaymentDtos.MpesaPaymentResponse> requestMpesa(@Valid @RequestBody PaymentDtos.MpesaPaymentRequest request) {
 		return ResponseEntity.ok(mpesaPaymentService.requestPayment(request));
 	}
 
 	@PostMapping("/mpesa/{reference}/confirm")
+	@PreAuthorize("hasAnyRole('ADMIN','MANAGER','ACCOUNTANT','CASHIER')")
 	public ResponseEntity<?> confirmMpesa(@PathVariable String reference) {
 		return ResponseEntity.ok(mpesaPaymentService.markPaymentConfirmed(reference));
 	}

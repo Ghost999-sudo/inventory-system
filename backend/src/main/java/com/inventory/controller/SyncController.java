@@ -4,6 +4,7 @@ import com.inventory.dto.SyncDtos;
 import com.inventory.sync.OfflineSyncService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 // This class is a Spring REST controller that handles HTTP requests related to offline synchronization, providing an endpoint for syncing batches of data.
@@ -18,6 +19,7 @@ public class SyncController {
 	}
 
 	@PostMapping("/batch")
+	@PreAuthorize("hasAnyRole('ADMIN','MANAGER','CASHIER','STORE_KEEPER','WAREHOUSE')")
 	public ResponseEntity<SyncDtos.SyncBatchResponse> syncBatch(@Valid @RequestBody SyncDtos.SyncBatchRequest request) {
 		return ResponseEntity.ok(offlineSyncService.sync(request));
 	}

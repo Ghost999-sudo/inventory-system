@@ -1,6 +1,7 @@
 package com.inventory.security;
 
 import com.inventory.repository.UserRepository;
+import com.inventory.model.UserStatus;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -25,7 +26,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 		return new User(
 			appUser.getEmail(),
 			appUser.getPassword(),
-			appUser.isActive(),
+			appUser.getStatus() == UserStatus.ACTIVE,
 			true,
 			true,
 			true,

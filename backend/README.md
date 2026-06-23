@@ -21,10 +21,9 @@ Spring Boot backend for the inventory and sales management system.
 mvn spring-boot:run
 ```
 
-## Default demo user
+## Admin-only account setup
 
-- Email: `admin@store.com`
-- Password: `admin123`
+No demo users are created, and public registration is disabled. Provision the initial admin account for a fresh database, sign in as that admin, then create and confirm all other users from **Settings**.
 
 ## Main endpoints
 

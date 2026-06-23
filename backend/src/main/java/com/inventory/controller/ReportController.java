@@ -3,6 +3,7 @@ package com.inventory.controller;
 import com.inventory.dto.ReportDtos;
 import com.inventory.report.ReportService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -19,6 +20,7 @@ public class ReportController {
 	}
 
 	@GetMapping("/dashboard")
+	@PreAuthorize("hasAnyRole('ADMIN','MANAGER','ACCOUNTANT')")
 	public ResponseEntity<ReportDtos.DashboardReportResponse> dashboard() {
 		return ResponseEntity.ok(reportService.getDashboardReport());
 	}

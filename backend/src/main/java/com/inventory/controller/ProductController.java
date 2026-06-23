@@ -6,6 +6,7 @@ import com.inventory.model.Product;
 import com.inventory.service.ProductService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -33,27 +34,32 @@ public class ProductController {
 	}
 
 	@GetMapping("/low-stock")
+	@PreAuthorize("hasAnyRole('ADMIN','MANAGER','STORE_KEEPER','WAREHOUSE','SUPPLIER')")
 	public ResponseEntity<List<ProductDtos.ProductResponse>> getLowStock() {
 		return ResponseEntity.ok(productService.getLowStockProducts());
 	}
 
 	@PostMapping
+	@PreAuthorize("hasAnyRole('ADMIN','MANAGER','STORE_KEEPER','WAREHOUSE')")
 	public ResponseEntity<ProductDtos.ProductResponse> create(@Valid @RequestBody ProductDtos.ProductRequest request) {
 		return ResponseEntity.ok(productService.createProduct(request));
 	}
 
 	@PutMapping("/{id}")
+	@PreAuthorize("hasAnyRole('ADMIN','MANAGER','STORE_KEEPER','WAREHOUSE')")
 	public ResponseEntity<ProductDtos.ProductResponse> update(@PathVariable Long id, @Valid @RequestBody ProductDtos.ProductRequest request) {
 		return ResponseEntity.ok(productService.updateProduct(id, request));
 	}
 
 	@DeleteMapping("/{id}")
+	@PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
 	public ResponseEntity<Void> delete(@PathVariable Long id) {
 		productService.deleteProduct(id);
 		return ResponseEntity.noContent().build();
 	}
 
 	@PostMapping("/{id}/stock")
+	@PreAuthorize("hasAnyRole('ADMIN','MANAGER','STORE_KEEPER','WAREHOUSE')")
 	public ResponseEntity<ProductDtos.ProductResponse> adjustStock(@PathVariable Long id, @RequestBody ProductDtos.StockAdjustmentRequest request) {
 		if (request.productId() != null && !request.productId().equals(id)) {
 			throw new BadRequestException("Product ID mismatch");

@@ -11,7 +11,7 @@ import java.math.RoundingMode;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.Comparator;
+//mport java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -43,7 +43,10 @@ public class ReportService {
 			.flatMap(sale -> sale.getItems().stream())
 			.collect(Collectors.groupingBy(
 				item -> item.getProductName(),
-				Collectors.summingLong(item -> item.getQuantity() == null ? 0 : item.getQuantity())
+				Collectors.summingLong(item -> {
+					Integer quantity = item.getQuantity();
+					return quantity == null ? 0L : quantity.longValue();
+				})
 			));
 
 		Map<String, BigDecimal> revenues = saleRepository.findByCreatedAtBetween(start, end).stream()

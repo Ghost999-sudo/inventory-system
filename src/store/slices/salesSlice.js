@@ -1,11 +1,17 @@
-import { createSlice, nanoid } from '@reduxjs/toolkit';
-import { initialSales } from '../../data/mockData';
+import { createAsyncThunk, createSlice, nanoid } from '@reduxjs/toolkit';
+import { salesService } from '../../services/salesService';
+
+export const fetchSales = createAsyncThunk('sales/fetchSales', async () => salesService.fetchSales());
+
+export const createSale = createAsyncThunk('sales/createSale', async sale => salesService.createSale(sale));
 
 const salesSlice = createSlice({
   name: 'sales',
   initialState: {
-    orders: initialSales,
-    cart: []
+    orders: [],
+    cart: [],
+    status: 'idle',
+    error: null
   },
   reducers: {
     addToCart(state, action) {
@@ -38,6 +44,25 @@ const salesSlice = createSlice({
       });
       state.cart = [];
     }
+  },
+  extraReducers: builder => {
+    builder
+      .addCase(fetchSales.pending, state => {
+        state.status = 'loading';
+        state.error = null;
+      })
+      .addCase(fetchSales.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        state.orders = action.payload;
+      })
+      .addCase(fetchSales.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.error.message;
+      })
+      .addCase(createSale.fulfilled, (state, action) => {
+        state.orders.unshift(action.payload);
+        state.cart = [];
+      });
   }
 });
 

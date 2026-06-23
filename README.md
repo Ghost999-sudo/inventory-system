@@ -6,8 +6,8 @@ The backend lives in `inventory-management-backend/` and is built with Spring Bo
 
 ## What is included
 
-- Login flow with protected routes
-- Dashboard with summary cards and charts
+- JWT login flow with protected, role-aware routes
+- Role-specific dashboards for admin, manager, accountant, cashier, store keeper, supplier, and customer users
 - POS page with cart and checkout flow
 - Inventory and products management screens
 - Customers, suppliers, and reports pages
@@ -22,6 +22,8 @@ The backend lives in `inventory-management-backend/` and is built with Spring Bo
 npm install
 npm run dev
 ```
+
+The app no longer creates sample users, products, customers, suppliers, sales, or report data. Account creation is admin-only: provision the initial admin account, sign in, then add and confirm all other users from **Settings**.
 
 ## Environment
 

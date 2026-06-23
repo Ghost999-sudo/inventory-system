@@ -4,6 +4,7 @@ import com.inventory.dto.SaleDtos;
 import com.inventory.service.SaleService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
@@ -19,16 +20,19 @@ public class SaleController {
 	}
 
 	@GetMapping
+	@PreAuthorize("hasAnyRole('ADMIN','MANAGER','ACCOUNTANT','CASHIER')")
 	public ResponseEntity<List<SaleDtos.SaleResponse>> getAll() {
 		return ResponseEntity.ok(saleService.getAllSales());
 	}
 
 	@GetMapping("/{id}")
+	@PreAuthorize("hasAnyRole('ADMIN','MANAGER','ACCOUNTANT','CASHIER')")
 	public ResponseEntity<SaleDtos.SaleResponse> getOne(@PathVariable Long id) {
 		return ResponseEntity.ok(saleService.getSale(id));
 	}
 
 	@PostMapping
+	@PreAuthorize("hasAnyRole('ADMIN','MANAGER','CASHIER')")
 	public ResponseEntity<SaleDtos.SaleResponse> create(@Valid @RequestBody SaleDtos.SaleRequest request) {
 		return ResponseEntity.ok(saleService.createSale(request));
 	}

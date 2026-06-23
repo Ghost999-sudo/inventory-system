@@ -123,6 +123,11 @@ textarea {
   color: white;
 }
 
+.button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
 .button.secondary {
   background: #e2e8f0;
   color: #0f172a;
@@ -180,6 +185,35 @@ textarea {
   border-radius: 12px;
   border: 1px solid var(--border);
   background: white;
+  transition: all 0.2s ease;
+}
+
+.field input:focus,
+.field select:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.auth-switch {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin: 18px 0;
+}
+
+.error-text,
+.success-text {
+  margin-bottom: 0;
+  font-weight: 600;
+}
+
+.error-text {
+  color: var(--danger);
+}
+
+.success-text {
+  color: var(--success);
 }
 
 .login-page {
@@ -198,9 +232,62 @@ textarea {
   box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
 }
 
+.login-card h1 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin-bottom: 12px;
+  color: var(--text);
+}
+
+.login-card .muted {
+  margin-bottom: 24px;
+  font-size: 0.95rem;
+}
+
+.login-card .button {
+  transition: all 0.2s ease;
+}
+
+.login-card .button:hover:not(:disabled) {
+  background: #1d4ed8;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+}
+
+.button-link {
+  background: none;
+  border: none;
+  color: var(--primary);
+  cursor: pointer;
+  font-size: 0.95rem;
+  padding: 0;
+  text-decoration: underline;
+  transition: color 0.2s ease;
+}
+
+.button-link:hover {
+  color: #1d4ed8;
+}
+
+.error-text {
+  margin-bottom: 0;
+  font-weight: 600;
+  color: var(--danger);
+  font-size: 0.9rem;
+  padding: 8px;
+  background-color: rgba(220, 38, 38, 0.1);
+  border-radius: 8px;
+  border-left: 3px solid var(--danger);
+}
+
 .chart-grid {
   display: grid;
   grid-template-columns: 2fr 1fr;
+  gap: 16px;
+}
+
+.pos-grid {
+  grid-template-columns: 1.4fr 1fr;
   gap: 16px;
 }
 
@@ -216,6 +303,10 @@ textarea {
   }
 
   .chart-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .pos-grid {
     grid-template-columns: 1fr;
   }
 }

@@ -1,50 +1,65 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { addToCart, completeSale, removeFromCart, updateCartQuantity } from '../store/slices/salesSlice';
-import { adjustStock } from '../store/slices/inventorySlice';
+import { addToCart, createSale, removeFromCart, updateCartQuantity } from '../store/slices/salesSlice';
+import { fetchProducts } from '../store/slices/inventorySlice';
 import { SectionHeader } from '../components/SectionHeader';
 
 export function PosPage() {
   const dispatch = useDispatch();
-  const products = useSelector(state => state.inventory.products);
+  const { products, status: productStatus } = useSelector(state => state.inventory);
   const cart = useSelector(state => state.sales.cart);
+  const user = useSelector(state => state.auth.user);
   const [query, setQuery] = useState('');
   const [paymentMethod, setPaymentMethod] = useState('Cash');
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    if (productStatus === 'idle') {
+      dispatch(fetchProducts());
+    }
+  }, [dispatch, productStatus]);
 
   const filteredProducts = useMemo(() => {
     const value = query.toLowerCase();
     return products.filter(product => product.name.toLowerCase().includes(value) || product.barcode.includes(value));
   }, [products, query]);
 
-  const total = cart.reduce((sum, item) => sum + item.qty * item.product.price, 0);
+  const total = cart.reduce((sum, item) => sum + item.qty * Number(item.product.sellingPrice), 0);
 
   const handleAddToCart = product => {
+    if (product.quantity <= 0) {
+      return;
+    }
     dispatch(addToCart({ product, qty: 1 }));
   };
 
-  const handleCheckout = () => {
-    dispatch(
-      completeSale({
-        items: cart.map(item => ({
-          productId: item.product.id,
-          name: item.product.name,
-          qty: item.qty,
-          price: item.product.price
-        })),
-        paymentMethod,
-        total
-      })
-    );
-    cart.forEach(item => {
-      dispatch(adjustStock({ id: item.product.id, delta: -item.qty }));
-    });
+  const handleCheckout = async () => {
+    setError('');
+    try {
+      await dispatch(
+        createSale({
+          customerName: '',
+          cashierName: user?.fullName || user?.email || 'Cashier',
+          paymentMethod,
+          discount: 0,
+          tax: 0,
+          items: cart.map(item => ({
+            productId: item.product.id,
+            quantity: item.qty
+          }))
+        })
+      ).unwrap();
+      dispatch(fetchProducts());
+    } catch (requestError) {
+      setError(requestError.response?.data?.message || requestError.message || 'Sale could not be completed.');
+    }
   };
 
   return (
     <div className="grid" style={{ gap: 24 }}>
       <SectionHeader title="POS" description="Fast checkout, barcode lookup, and payments." />
 
-      <div className="grid" style={{ gridTemplateColumns: '1.4fr 1fr', gap: 16 }}>
+      <div className="grid pos-grid">
         <div className="panel">
           <div className="panel-header">
             <div>
@@ -61,15 +76,21 @@ export function PosPage() {
             />
           </div>
           <div className="grid" style={{ gap: 12 }}>
+            {productStatus === 'loading' ? <p className="muted">Loading products...</p> : null}
+            {filteredProducts.length === 0 && productStatus !== 'loading' ? (
+              <p className="muted">No products available yet. Add products from Inventory first.</p>
+            ) : null}
             {filteredProducts.map(product => (
               <div key={product.id} className="card" style={{ display: 'flex', justifyContent: 'space-between', gap: 12 }}>
                 <div>
                   <strong>{product.name}</strong>
-                  <div className="muted">{product.category} • Barcode {product.barcode}</div>
+                  <div className="muted">
+                    {product.category} · Barcode {product.barcode} · {product.quantity} in stock
+                  </div>
                 </div>
                 <div style={{ textAlign: 'right' }}>
-                  <div>KES {product.price}</div>
-                  <button className="button" onClick={() => handleAddToCart(product)}>
+                  <div>KES {Number(product.sellingPrice).toLocaleString()}</div>
+                  <button className="button" onClick={() => handleAddToCart(product)} disabled={product.quantity <= 0}>
                     Add
                   </button>
                 </div>
@@ -85,11 +106,12 @@ export function PosPage() {
             {cart.map(item => (
               <div key={item.product.id} className="card">
                 <strong>{item.product.name}</strong>
-                <div className="muted">KES {item.product.price} each</div>
+                <div className="muted">KES {Number(item.product.sellingPrice).toLocaleString()} each</div>
                 <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginTop: 10 }}>
                   <input
                     type="number"
                     min="1"
+                    max={item.product.quantity}
                     value={item.qty}
                     onChange={event => dispatch(updateCartQuantity({ id: item.product.id, qty: Number(event.target.value) }))}
                     style={{ width: 80, padding: '10px 12px', borderRadius: 10, border: '1px solid var(--border)' }}
@@ -114,6 +136,7 @@ export function PosPage() {
               <strong>Total</strong>
               <strong>KES {total.toLocaleString()}</strong>
             </div>
+            {error ? <p className="error-text">{error}</p> : null}
             <button className="button" style={{ width: '100%', marginTop: 16 }} onClick={handleCheckout} disabled={cart.length === 0}>
               Complete Sale
             </button>

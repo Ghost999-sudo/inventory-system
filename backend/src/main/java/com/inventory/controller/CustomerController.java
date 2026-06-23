@@ -4,6 +4,7 @@ import com.inventory.dto.CustomerDtos;
 import com.inventory.service.CustomerService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
@@ -19,16 +20,19 @@ public class CustomerController {
 	}
 
 	@GetMapping
+	@PreAuthorize("hasAnyRole('ADMIN','MANAGER','CASHIER')")
 	public ResponseEntity<List<CustomerDtos.CustomerResponse>> getAll() {
 		return ResponseEntity.ok(customerService.getAllCustomers());
 	}
 
 	@PostMapping
+	@PreAuthorize("hasAnyRole('ADMIN','MANAGER','CASHIER')")
 	public ResponseEntity<CustomerDtos.CustomerResponse> create(@Valid @RequestBody CustomerDtos.CustomerRequest request) {
 		return ResponseEntity.ok(customerService.create(request));
 	}
 
 	@PutMapping("/{id}")
+	@PreAuthorize("hasAnyRole('ADMIN','MANAGER','CASHIER')")
 	public ResponseEntity<CustomerDtos.CustomerResponse> update(@PathVariable Long id, @Valid @RequestBody CustomerDtos.CustomerRequest request) {
 		return ResponseEntity.ok(customerService.update(id, request));
 	}
